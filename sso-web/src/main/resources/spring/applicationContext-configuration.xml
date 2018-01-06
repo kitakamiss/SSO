@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	<!-- 采用注释的方式配置bean -->
+	<context:annotation-config />
+	<!-- 配置要扫描的包 -->
+	<context:component-scan base-package="com.hjrh.sso" />
+
+	<!-- 视图解析器配置，使用内部资源视图解析器，使用位于/WEB-INF/pages/目录下的后缀为jsp的文件作为视图 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/WEB-INF/pages/" p:suffix=".jsp" />
+
+	<!-- 配置注解方法处理适配器 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<ref bean="mappingJacksonHttpMessageConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- 配置jackson http json转换器。 -->
+	<bean id="mappingJacksonHttpMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<list>
+				<value>text/html;charset=UTF-8</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 读入配置属性文件 -->
+	<context:property-placeholder location="classpath:public_system.properties" />
+
+	<!-- proxy-target-class默认"false",更改为"ture"使用CGLib动态代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+
+	<bean id="springContextUtil" class="com.hjrh.common.web.utils.SpringContextUtil" />
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="testWhileIdle" value="true" />
+		<property name="minEvictableIdleTimeMillis" value="60000" />
+		<property name="timeBetweenEvictionRunsMillis" value="30000" />
+		<property name="numTestsPerEvictionRun" value="-1" />
+		<property name="maxTotal" value="50" />
+		<property name="maxIdle" value="50" />
+		<property name="minIdle" value="10" />
+	</bean>
+
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool"
+		destroy-method="destroy">
+		<constructor-arg index="1" value="${redis.host}" />
+		<constructor-arg index="2" value="${redis.port}" />
+		<!--timeout -->
+		<constructor-arg index="3" value="${redis.timeout}" />
+		<constructor-arg name="poolConfig" ref="jedisPoolConfig" />
+	</bean>
+	<bean id="redisUtils" class="com.hjrh.common.utils.cache.redis.RedisUtils">
+		<property name="jedisPool" ref="jedisPool" />
+	</bean>
+
+	<import resource="classpath:dubbo/dubbo-consumer.xml" />
+</beans>

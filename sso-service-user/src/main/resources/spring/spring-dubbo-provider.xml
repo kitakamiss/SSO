@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://code.alibabatech.com/schema/dubbo  
+            http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<!-- 提供方应用信息，用于计算依赖关系 -->
+	<dubbo:application name="hjrh-service-ssouser" />
+
+	<!-- 使用zookeeper注册中心暴露服务地址 -->
+	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}" />
+
+	<!-- 用dubbo协议在88888端口暴露服务 -->
+	<dubbo:protocol name="dubbo" port="18888" />
+
+	<!-- 监控中心配置，protocol="registry"，表示从注册中心发现监控中心地址 -->
+	<dubbo:monitor protocol="registry" />
+
+	<!-- 当ProtocolConfig和ServiceConfig某属性没有配置时,采用此缺省值 -->
+	<dubbo:provider timeout="10000" threadpool="fixed"
+		threads="100" accepts="1000" />
+
+	<dubbo:service retries="0"
+		interface="com.hjrh.facade.user.service.SsoUserService" ref="ssoUserService" />
+	
+	<dubbo:service retries="0"
+		interface="com.hjrh.facade.user.service.UserLogService" ref="userLogService" />
+		
+	<dubbo:service retries="0"
+		interface="com.hjrh.facade.user.service.UserAttemptsService" ref="userAttemptsService" />
+		
+	<dubbo:service retries="0"
+		interface="com.hjrh.facade.user.service.AppService" ref="appService" />
+</beans>  

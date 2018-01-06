@@ -1,0 +1,14 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+	updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+
+	<defaultCache maxElementsInMemory="20" eternal="false"
+		overflowToDisk="false" timeToIdleSeconds="1800" timeToLiveSeconds="1800">
+	</defaultCache>
+
+	<cache name="data-cache" maxElementsInMemory="20" overflowToDisk="false"
+		eternal="false" timeToIdleSeconds="1800" timeToLiveSeconds="1800"
+		memoryStoreEvictionPolicy="LRU" transactionalMode="off">
+		<searchable keys="true" /> <!--可以根据Key进行查询，查询的Attribute就是keys -->
+	</cache>
+</ehcache>
